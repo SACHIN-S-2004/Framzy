@@ -5,6 +5,7 @@ const AUTH_BASE_URL = 'https://sample.com/user';
 
 // Wallhaven API functions
 export const fetchWallpapers = async (params = {}) => {
+  console.log('Fetching wallpapers with filters:', params);
   try {
     const searchParams = new URLSearchParams({
       categories: '110',
@@ -14,6 +15,18 @@ export const fetchWallpapers = async (params = {}) => {
       page: params.page || '1',
       ...params
     });
+
+    if (params.filter?.resolution) {
+      searchParams.append('resolutions', params.filter.resolution);
+    }
+
+    if (params.filter?.orientation) {
+      searchParams.append('ratios', params.filter.orientation);
+    }
+
+    if (params.filter?.color) {
+      searchParams.append('colors', params.filter.color);
+    }
 
     const response = await fetch(`${BASE_URL}/search?${searchParams}`);
     if (!response.ok) {
@@ -48,6 +61,16 @@ export const searchWallpapers = async (query, page = 1) => {
     q: query,
     sorting: 'relevance',
     page: page.toString()
+  });
+};
+
+export const searchWallpapersWithFilter = async (query, page = 1, filters) => {
+  console.log('filters:',filters);
+  return fetchWallpapers({
+    q: query,
+    sorting: 'relevance',
+    page: page.toString(),
+    filter: filters
   });
 };
 

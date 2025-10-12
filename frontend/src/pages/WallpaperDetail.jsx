@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { ArrowLeft, Download, Eye, Heart, Calendar, Monitor, Album, Paperclip, Clapperboard } from 'lucide-react';
+import { ArrowLeft, Download, Eye, Heart, Calendar, Monitor } from 'lucide-react';
 import ImageGrid from '../components/ImageGrid';
 import { fetchWallpaperById, fetchWallpapers } from '../utils/api';
 
@@ -40,7 +40,7 @@ const WallpaperDetail = () => {
     }
   };
 
-  const fullScreen = () => {
+  const handleDownload = () => {
     if (wallpaper?.path) {
       const link = document.createElement('a');
       link.href = wallpaper.path;
@@ -49,18 +49,6 @@ const WallpaperDetail = () => {
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
-    }
-  };
-
-  const handleDownload = async () => {
-    if (wallpaper?.path) {
-      const res = await fetch(wallpaper.path);
-      const blob = await res.blob();
-      const a = document.createElement('a');
-      a.href = URL.createObjectURL(blob);
-      a.download = `framzy-wallpaper-${wallpaper.id}.jpg`;
-      a.click();
-      URL.revokeObjectURL(a.href);
     }
   };
 
@@ -92,21 +80,8 @@ const WallpaperDetail = () => {
     );
   }
 
-  function formatBytes(bytes) {
-    if (bytes < 1024) return `${bytes} B`;
-    const kb = bytes / 1024;
-    if (kb < 1024) return `${kb.toFixed(1)} KiB`;
-    const mb = kb / 1024;
-    return `${mb.toFixed(1)} MiB`;
-  }
-
-  function fileFormat(type) {
-    const dat=type.slice("image/".length);
-    return dat.toUpperCase();
-  }
-
   return (
-    <div className="container mx-auto px-4 py-8">
+    <div className="w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
       {/* Back Button */}
       <Link
         to="/"
@@ -116,55 +91,35 @@ const WallpaperDetail = () => {
         <span>Back to Gallery</span>
       </Link>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-16">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 lg:gap-8 mb-16">
         {/* Main Image */}
         <div className="lg:col-span-2">
-          <div className="relative bg-white dark:bg-gray-800 rounded-2xl overflow-hidden shadow-2xl">
+          <div className="relative bg-white dark:bg-gray-800 rounded-2xl overflow-hidden shadow-2xl w-full">
             <img
               src={wallpaper.path}
               alt="Wallpaper"
-              className="w-full h-auto max-h-screen object-contain"
+              className="w-full h-auto max-h-[70vh] object-contain"
               loading="lazy"
             />
           </div>
         </div>
 
         {/* Details Sidebar */}
-        <div className="space-y-6">
+        <div className="space-y-4 lg:space-y-6">
           <div className="bg-white/80 dark:bg-black/40 backdrop-blur-sm rounded-2xl p-6 border border-white/30 dark:border-white/20">
             <h1 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">
               Wallpaper Details
             </h1>
 
             {/* Stats */}
-            <div className="grid grid-cols-2 gap-4 mb-6">
+            <div className="grid grid-cols-2 gap-2 sm:gap-4 mb-6">
               <div className="flex items-center space-x-2 text-gray-600 dark:text-gray-300">
                 <Eye className="h-4 w-4" />
-                <span className="text-sm">{formatNumber(wallpaper.views || 0)} views</span>
+                <span className="text-xs sm:text-sm">{formatNumber(wallpaper.views || 0)} views</span>
               </div>
               <div className="flex items-center space-x-2 text-gray-600 dark:text-gray-300">
                 <Heart className="h-4 w-4" />
-                <span className="text-sm">{formatNumber(wallpaper.favorites || 0)} likes</span>
-              </div>
-            </div>
-
-            {/* Created At */}
-            <div className="flex items-center space-x-2 mb-4">
-              <Calendar className="h-5 w-5 text-purple-600 dark:text-purple-400" />
-              <div>
-                <p className="font-semibold text-gray-900 dark:text-white">Created At</p>
-                <p className="text-sm text-gray-600 dark:text-gray-300">{wallpaper.created_at}</p>
-              </div>
-            </div>
-
-            {/* Category */}
-            <div className="flex items-center space-x-2 mb-4">
-              <Album className="h-5 w-5 text-purple-600 dark:text-purple-400" />
-              <div>
-                <p className="font-semibold text-gray-900 dark:text-white">Category</p>
-                <p className="text-sm text-gray-600 dark:text-gray-300 capitalize">
-                  {wallpaper.category || 'General'}
-                </p>
+                <span className="text-xs sm:text-sm">{formatNumber(wallpaper.favorites || 0)} likes</span>
               </div>
             </div>
 
@@ -173,40 +128,25 @@ const WallpaperDetail = () => {
               <Monitor className="h-5 w-5 text-purple-600 dark:text-purple-400" />
               <div>
                 <p className="font-semibold text-gray-900 dark:text-white">Resolution</p>
-                <p className="text-sm text-gray-600 dark:text-gray-300">{wallpaper.resolution}</p>
+                <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-300">{wallpaper.resolution}</p>
               </div>
             </div>
 
-            {/* File Type */}
-            <div className="flex items-center space-x-2 mb-4">
-              <Clapperboard className="h-5 w-5 text-purple-600 dark:text-purple-400" />
-              <div>
-                <p className="font-semibold text-gray-900 dark:text-white">Type</p>
-                <p className="text-sm text-gray-600 dark:text-gray-300">{fileFormat(wallpaper.file_type)}</p>
-              </div>
-            </div>
-
-            {/* File Size */}
+            {/* Category */}
             <div className="flex items-center space-x-2 mb-6">
-              <Paperclip className="h-5 w-5 text-purple-600 dark:text-purple-400" />
+              <Calendar className="h-5 w-5 text-purple-600 dark:text-purple-400" />
               <div>
-                <p className="font-semibold text-gray-900 dark:text-white">Size</p>
-                <p className="text-sm text-gray-600 dark:text-gray-300">{formatBytes(wallpaper.file_size)}</p>
+                <p className="font-semibold text-gray-900 dark:text-white">Category</p>
+                <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-300 capitalize">
+                  {wallpaper.category || 'General'}
+                </p>
               </div>
             </div>
-            {/* FullScreen Button */}
-            <button
-              onClick={fullScreen}
-              className="mb-2 w-full bg-gradient-to-r from-gray-500 to-black hover:from-gray-600 hover:to-gray-900 text-white font-semibold py-3 px-6 rounded-xl transition-all duration-500 hover:shadow-lg hover:scale-105 flex items-center justify-center space-x-2"
-              >
-              <Download className="h-5 w-5" />
-              <span>FullScreen</span>
-            </button>
 
             {/* Download Button */}
             <button
               onClick={handleDownload}
-              className="w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white font-semibold py-3 px-6 rounded-xl transition-all duration-500 hover:shadow-lg hover:scale-105 flex items-center justify-center space-x-2"
+              className="w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white font-semibold py-2 sm:py-3 px-4 sm:px-6 rounded-xl transition-all duration-300 hover:shadow-lg hover:scale-105 flex items-center justify-center space-x-2 text-sm sm:text-base"
             >
               <Download className="h-5 w-5" />
               <span>Download Wallpaper</span>
@@ -220,7 +160,7 @@ const WallpaperDetail = () => {
                   {wallpaper.colors.slice(0, 5).map((color, index) => (
                     <div
                       key={index}
-                      className="w-8 h-8 rounded-lg border border-gray-300 dark:border-gray-600 shadow-sm"
+                      className="w-6 h-6 sm:w-8 sm:h-8 rounded-lg border border-gray-300 dark:border-gray-600 shadow-sm"
                       style={{ backgroundColor: color }}
                       title={color}
                     ></div>
