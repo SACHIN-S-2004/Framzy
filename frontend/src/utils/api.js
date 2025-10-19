@@ -2,8 +2,8 @@
 
 const BASE_URL =
   import.meta.env.MODE === 'development'
-    ? '/api/v1'  // use proxy in local dev
-    : 'https://wallhaven.cc/api/v1'; // use full URL in production
+    ? '/api/v1'
+    : 'https://framzy-proxy.onrender.com/api/v1';
 
 const AUTH_BASE_URL = 'https://sample.com/user';
 
