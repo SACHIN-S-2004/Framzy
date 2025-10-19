@@ -4,12 +4,12 @@ import ImageGrid from '../components/ImageGrid';
 import FilterNavbar from '../components/FilterNavbar';
 import { fetchWallpapers, searchWallpapers, searchWallpapersWithFilter } from '../utils/api';
 
-const Homepage = () => {
+const Homepage = ({ searchQuery: propSearchQuery,  onSearch }) => {
   const [wallpapers, setWallpapers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
-  const [searchQuery, setSearchQuery] = useState('');
+  const [searchQuery, setSearchQuery] = useState(propSearchQuery || '');
   const [isFilter, setIsFilter] = useState(false);
   const [filters, setFilters] = useState({});
   const [isFilterLoading, setIsFilterLoading] = useState(false);
@@ -19,7 +19,14 @@ const Homepage = () => {
 
   useEffect(() => {
     loadWallpapers();
-  }, [sorting, currentPage]);
+  }, [sorting, currentPage, searchQuery]);
+
+  // Update local state when props change
+  useEffect(() => {
+    if (propSearchQuery !== undefined) {
+      setSearchQuery(propSearchQuery);
+    }
+  }, [propSearchQuery]);
 
   const loadWallpapers = async (applyFilters = false) => {
     setLoading(true);
@@ -127,6 +134,9 @@ const Homepage = () => {
   const handleSearch = async (query) => {
     setSearchQuery(query);
     setCurrentPage(1);
+    if (onSearch) {
+      onSearch(query);
+    }
     setLoading(true);
     
     try {

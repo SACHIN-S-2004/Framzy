@@ -10,6 +10,7 @@ import LiquidEther from './LiquidEther';
 
 function App() {
   const { theme, toggleTheme } = useTheme();
+  const [searchQuery, setSearchQuery] = useState('');
   const [notification, setNotification] = useState({
     message: '',
     type: 'success',
@@ -31,6 +32,7 @@ function App() {
   const handleSearch = (query) => {
     // This will be handled by the Homepage component
     // We're just passing it through for now
+    setSearchQuery(query);
   };
 
   return (
@@ -68,7 +70,7 @@ function App() {
           
           <main className="relative z-10">
             <Routes>
-              <Route path="/" element={<Homepage onSearch={handleSearch} />} />
+              <Route path="/" element={<Homepage searchQuery={searchQuery} onSearch={handleSearch} />} />
               <Route path="/wallpaper/:id" element={<WallpaperDetail />} />
             </Routes>
           </main>
