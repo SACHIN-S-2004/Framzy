@@ -1,13 +1,38 @@
-import React, { useState } from 'react';
+import React, { useState, forwardRef, useImperativeHandle, useEffect } from 'react';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { RefreshCw, Filter, ChevronDown, ChevronUp } from 'lucide-react';
 
-const FilterNavbar = ({ onFilterChange, isLoading }) => {
+const FilterNavbar = forwardRef(({ onFilterChange, isLoading }, ref) => {
+  const [searchParams] = useSearchParams();
+  const navigate = useNavigate();
   const [filters, setFilters] = useState({
     resolution: '',
     orientation: '',
     color: ''
   });
   const [isExpanded, setIsExpanded] = useState(false);
+
+  // Sync filters with URL on mount and changes
+  useEffect(() => {
+    const urlFilters = {
+      resolution: searchParams.get('resolution') || '',
+      orientation: searchParams.get('orientation') || '',
+      color: searchParams.get('color') || ''
+    };
+    setFilters(urlFilters);
+  }, [searchParams]);
+
+  // Expose reset method to parent component
+  useImperativeHandle(ref, () => ({
+    reset: () => {
+      setFilters({
+        resolution: '',
+        orientation: '',
+        color: ''
+      });
+      setIsExpanded(false);
+    }
+  }));
 
   const resolutionOptions = [
     { value: '', label: 'All Resolutions' },
@@ -46,7 +71,33 @@ const FilterNavbar = ({ onFilterChange, isLoading }) => {
   };
 
   const handleApplyFilters = () => {
-    //console.log('Applying filters:', filters);
+    // Build URL with current search and new filters
+    const params = new URLSearchParams(searchParams);
+    
+    // Add or remove filter parameters
+    if (filters.resolution) {
+      params.set('resolution', filters.resolution);
+    } else {
+      params.delete('resolution');
+    }
+    
+    if (filters.orientation) {
+      params.set('orientation', filters.orientation);
+    } else {
+      params.delete('orientation');
+    }
+    
+    if (filters.color) {
+      params.set('color', filters.color);
+    } else {
+      params.delete('color');
+    }
+    
+    // Remove page when applying filters
+    params.delete('page');
+    
+    // Navigate with new filters
+    navigate(`/?${params.toString()}`);
     onFilterChange(filters);
   };
 
@@ -55,7 +106,6 @@ const FilterNavbar = ({ onFilterChange, isLoading }) => {
   return (
     <div className="relative z-30 bg-white/5 dark:bg-black/10 backdrop-blur-sm border-b border-white/10 dark:border-white/5">
       <div className="w-full mx-auto px-4 sm:px-6 lg:px-8">
-        {/* Mobile Filter Toggle */}
         <div className="md:hidden">
           <button
             onClick={() => setIsExpanded(!isExpanded)}
@@ -74,10 +124,8 @@ const FilterNavbar = ({ onFilterChange, isLoading }) => {
           </button>
         </div>
 
-        {/* Filter Content */}
         <div className={`${isExpanded ? 'block' : 'hidden'} md:block py-3`}>
           <div className="flex flex-col md:flex-row md:items-center md:justify-between space-y-4 md:space-y-0 md:space-x-6">
-            {/* Filter Controls */}
             <div className="flex flex-col md:flex-row space-y-3 md:space-y-0 md:space-x-6 flex-1">
               {/* Resolution Filter */}
               <div className="flex flex-col md:flex-row md:items-center space-y-2 md:space-y-0 md:space-x-2">
@@ -134,7 +182,6 @@ const FilterNavbar = ({ onFilterChange, isLoading }) => {
               </div>
             </div>
 
-            {/* Apply Button */}
             <button
               onClick={handleApplyFilters}
               disabled={isLoading}
@@ -148,6 +195,6 @@ const FilterNavbar = ({ onFilterChange, isLoading }) => {
       </div>
     </div>
   );
-};
+});
 
 export default FilterNavbar;

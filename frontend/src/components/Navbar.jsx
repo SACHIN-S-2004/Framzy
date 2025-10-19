@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Image, Menu, X } from 'lucide-react';
 import ThemeToggle from './ThemeToggle';
@@ -13,6 +13,7 @@ const Navbar = ({ theme, onThemeToggle, onNotification, onSearch }) => {
   const navigate = useNavigate();
 
   const handleNavClick = (sorting) => {
+    // Navigate to tab, which will clear search params automatically
     navigate(`/?sorting=${sorting}`);
   };
 
