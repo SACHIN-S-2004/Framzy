@@ -1,6 +1,10 @@
 // API utility functions for Framzy
 
-const BASE_URL = '/api/v1';
+const BASE_URL =
+  import.meta.env.MODE === 'development'
+    ? '/api/v1'  // use proxy in local dev
+    : 'https://wallhaven.cc/api/v1'; // use full URL in production
+
 const AUTH_BASE_URL = 'https://sample.com/user';
 
 // Wallhaven API functions
