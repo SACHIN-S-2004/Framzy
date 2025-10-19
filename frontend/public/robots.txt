@@ -1,0 +1,7 @@
+User-agent: *
+Allow: /
+Disallow: /api/
+Disallow: /static/
+Disallow: /assets/
+Disallow: /_app/
+Sitemap: https://framzy.onrender.com/sitemap.xml
